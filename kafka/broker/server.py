@@ -11,9 +11,12 @@ logging.basicConfig(level=logging.INFO)
 
 HOST = 'localhost'
 PORT = 65_432
-connection_map = defaultdict(set) # shared across threads, likely won't scale well if we enhance this in the future think of ways to improve, som sorta semaphore mayeb?
+connection_map = defaultdict(
+    set)  # shared across threads, likely won't scale well if we enhance this in the future think of ways to improve, som sorta semaphore mayeb?
 
 NUM_PARTITIONS = 10
+
+
 def handle_appending_to_log(message: Message, topic_name: str):
     partition = hash(message.key) ** 8 % NUM_PARTITIONS
     file_name = os.path.join('partitions', topic_name, str(partition))
@@ -22,7 +25,7 @@ def handle_appending_to_log(message: Message, topic_name: str):
         f.write(bytes(message.value, 'utf-8'))
 
 
-def handle_producer(message: Message, topic_name: str,producer):
+def handle_producer(message: Message, topic_name: str, producer):
     handle_appending_to_log(message, topic_name)
     for connection in connection_map[topic_name]:
         connection.send(bytes(message.value, 'utf-8'))
@@ -35,6 +38,7 @@ def handle_producer(message: Message, topic_name: str,producer):
         except socket.timeout:
             producer.send("No acknowledgment received from a consumer")
 
+
 def handle_client_connection(conn, add):
     try:
         log_info(F"New connection with {add}")
@@ -45,7 +49,9 @@ def handle_client_connection(conn, add):
     timestamp: datetime
 
         """
-        conn.send(f"Connected to broker, data will be seralized and deseralized in a json fromat, follwoing {schema} format".encode('utf-8'))
+        conn.send(
+            f"Connected to broker, data will be seralized and deseralized in a json fromat, follwoing {schema} format".encode(
+                'utf-8'))
         while True:
             data = conn.recv(1024)
             if not data:
