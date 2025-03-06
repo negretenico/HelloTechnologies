@@ -7,4 +7,3 @@ Eviction LRU
 
 high throughput and low latency
 persistence
-scalability

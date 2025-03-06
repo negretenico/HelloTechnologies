@@ -1,4 +1,6 @@
 #include <unordered_map>
+#include <string>
+#include <functional>
 using namespace std;
 template <typename T>
 class Cache
@@ -32,16 +34,19 @@ public:
 
     T get(const string &key)
     {
-        return cache.at(key)
+        return cache.at(key);
     }
     void evict(function<string(const unordered_map<string, T> &)> strategy)
     {
-        string keyToEvict = strategy(cache);
-        if (keyToEvict.empty())
+        string keyToEvict = strategy(cache); // Get key to evict using the strategy
+        if (keyToEvict.empty())              // If no key is returned, don't do anything
         {
             return;
         }
-        memoryUsed -= sizeof(cache[keyToEvict]) + keyToEvict.size();
-        cache.erase(keyToEvict);
+
+        // Adjust memoryUsed: subtract the size of the string and the key
+        memoryUsed -= cache[keyToEvict].size() + keyToEvict.size(); // For strings, use size()
+
+        cache.erase(keyToEvict); // Erase the entry from the cache
     }
 };
