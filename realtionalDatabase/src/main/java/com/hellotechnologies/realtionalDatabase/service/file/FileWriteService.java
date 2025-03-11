@@ -19,7 +19,7 @@ public class FileWriteService<T> {
         this.objectMapper = objectMapper;
     }
 
-    public ResultStatus writeToFile(String fileName, T content) {
+    public synchronized ResultStatus writeToFile(String fileName, T content) {
         try (FileWriter fileWriter = new FileWriter(fileName)) {
             String valueAsString = objectMapper.writeValueAsString(content);
             fileWriter.write(valueAsString);

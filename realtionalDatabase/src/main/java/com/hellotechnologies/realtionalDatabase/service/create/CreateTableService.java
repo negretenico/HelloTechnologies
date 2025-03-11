@@ -32,7 +32,7 @@ public class CreateTableService {
             return Result.failure(String.format("The string %s is not a valid table name", name));
         }
         try {
-            boolean hasFile = createFileService.createFile(Path.of("data/table", name, ".table").toString());
+            boolean hasFile = createFileService.createFile(Path.of("data", "table", String.join("", name, ".table")).toString());
             log.info("Table created successfully: {}", name);
             return Result.success(hasFile);
         } catch (IOException e) {

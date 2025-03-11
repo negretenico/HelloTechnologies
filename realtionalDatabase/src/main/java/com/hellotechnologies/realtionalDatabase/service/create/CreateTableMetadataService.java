@@ -24,7 +24,7 @@ public class CreateTableMetadataService {
     }
 
     public Result<Boolean> createTableMetadata(TableDefinition tableDefinition) {
-        Path filePath = Path.of("data", "metadata", tableDefinition.name(), ".metadata");
+        Path filePath = Path.of("data", "metadata", String.join("", tableDefinition.name(), ".metadata"));
         try {
             createFileService.createFile(filePath.toString());
         } catch (IOException e) {
