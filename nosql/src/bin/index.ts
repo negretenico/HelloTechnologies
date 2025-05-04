@@ -6,6 +6,7 @@ import { create } from "../CRUD/create.js";
 import { update } from "../CRUD/update.js";
 import { del } from "../CRUD/delete.js";
 import { parseObject } from "../checker/parseObject.js";
+import { computePartitionFile } from "../partition/computePartitionFile.js";
 console.log("Starting CLI application...");
 program
   .name("HelloTechnologies-NoSql")
@@ -16,6 +17,7 @@ program
 program
   .command("read")
   .argument("<fileName>", "Path to the JSON file")
+  .option("-k, --key <string>")
   .action((fileName, options) => {
     if (!isFilePath(fileName)) {
       console.error(
@@ -23,13 +25,18 @@ program
       );
       process.exit(1); // Exit with failure
     }
-    const data = read(fileName);
+    const partitionedFilePath = computePartitionFile({
+      key: options.key,
+      file: fileName,
+    });
+    const data = read(partitionedFilePath);
     console.log(`📄 Contents of ${fileName}:\n`, data);
   });
 
 program
   .command("delete")
   .argument("<fileName>", "Path to the JSON file")
+  .option("-k, --key <string>")
   .action((fileName, options) => {
     if (!isFilePath(fileName)) {
       console.error(
@@ -37,7 +44,11 @@ program
       );
       process.exit(1); // Exit with failure
     }
-    const status = del(fileName);
+    const partitionedFilePath = computePartitionFile({
+      key: options.key,
+      file: fileName,
+    });
+    const status = del(partitionedFilePath);
     if (status === "ERROR") {
       console.error(`Could not delete file ${fileName}`);
       process.exit(1);
@@ -52,6 +63,7 @@ program
     "-d, --data <json>",
     "Optional JSON data to insert into the initial file"
   )
+  .option("-k, --key <string>")
   .action((fileName, options) => {
     if (!isFilePath(fileName)) {
       console.error(
@@ -64,7 +76,20 @@ program
       console.error(`❌ Error processing ${parsedDataOrErrMsg}`);
       process.exit(1);
     }
-    const status = create(fileName, parsedDataOrErrMsg);
+
+    const fieldName = options.key ?? "id";
+    const partitionValue = parsedDataOrErrMsg[fieldName];
+    if (typeof partitionValue !== "string") {
+      console.error(
+        `❌ Partition key '${fieldName}' must be a string in your data.`
+      );
+      process.exit(1);
+    }
+    const partitionedFilePath = computePartitionFile({
+      key: partitionValue,
+      file: fileName,
+    });
+    const status = create(partitionedFilePath, parsedDataOrErrMsg);
     if (status === "ERROR") {
       console.error(`❌ Error creating ${fileName}`);
       process.exit(1);
@@ -79,6 +104,7 @@ program
     "-d, --data <json>",
     "Optional JSON data to insert into the initial file"
   )
+  .option("-k, --key <string>")
   .action((fileName, options) => {
     if (!isFilePath(fileName)) {
       console.error(
@@ -91,7 +117,19 @@ program
       console.error(`❌ Error processing ${parsedDataOrErrMsg}`);
       process.exit(1);
     }
-    const status = update(fileName, parsedDataOrErrMsg);
+    const fieldName = options.key ?? "id";
+    const partitionValue = parsedDataOrErrMsg[fieldName];
+    if (typeof partitionValue !== "string") {
+      console.error(
+        `❌ Partition key '${fieldName}' must be a string in your data.`
+      );
+      process.exit(1);
+    }
+    const partitionedFilePath = computePartitionFile({
+      key: partitionValue,
+      file: fileName,
+    });
+    const status = update(partitionedFilePath, parsedDataOrErrMsg);
     if (status === "ERROR") {
       console.error(`❌ Error updating ${fileName}`);
       process.exit(1);
