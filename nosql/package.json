@@ -1,0 +1,28 @@
+{
+  "name": "nosql",
+  "version": "1.0.0",
+  "description": "",
+  "ht-nosql": "dist/bin/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "npm unlink && npm run build && npm link"
+  },
+  "bin": {
+    "ht-nosql": "dist/bin/index.js"
+  },
+  "author": "Nicholas Negrete",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/murmurhash3js": "^3.0.7",
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@types/murmurhash-js": "^1.0.6",
+    "commander": "^13.1.0",
+    "murmurhash-js": "^1.0.0",
+    "murmurhash3js": "^3.0.1"
+  }
+}
