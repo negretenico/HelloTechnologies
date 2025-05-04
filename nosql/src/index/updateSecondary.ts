@@ -1,7 +1,7 @@
 import { join } from "path";
-import { read } from "../CRUD/read";
-import { update } from "../CRUD/update";
-import { FilePath } from "../types/type";
+import { read } from "../CRUD/read.js";
+import { update } from "../CRUD/update.js";
+import { FilePath } from "../types/type.js";
 type UpdateSecondary = {
   table: string;
   field: string;

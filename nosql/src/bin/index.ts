@@ -7,6 +7,7 @@ import { update } from "../CRUD/update.js";
 import { del } from "../CRUD/delete.js";
 import { parseObject } from "../checker/parseObject.js";
 import { computePartitionFile } from "../partition/computePartitionFile.js";
+import { logToFile } from "../logging/logToFile.js";
 console.log("Starting CLI application...");
 program
   .name("HelloTechnologies-NoSql")
@@ -30,6 +31,10 @@ program
       file: fileName,
     });
     const data = read(partitionedFilePath);
+    logToFile({
+      operation: "READ",
+      table: fileName,
+    });
     console.log(`📄 Contents of ${fileName}:\n`, data);
   });
 
@@ -53,6 +58,10 @@ program
       console.error(`Could not delete file ${fileName}`);
       process.exit(1);
     }
+    logToFile({
+      operation: "DELETE",
+      table: fileName,
+    });
     console.log(`Deleted file ${fileName}`);
   });
 
@@ -88,6 +97,11 @@ program
     const partitionedFilePath = computePartitionFile({
       key: partitionValue,
       file: fileName,
+    });
+    logToFile({
+      operation: "WRITE",
+      table: fileName,
+      data: parsedDataOrErrMsg,
     });
     const status = create(partitionedFilePath, parsedDataOrErrMsg);
     if (status === "ERROR") {
@@ -128,6 +142,11 @@ program
     const partitionedFilePath = computePartitionFile({
       key: partitionValue,
       file: fileName,
+    });
+    logToFile({
+      operation: "UPDATE",
+      table: fileName,
+      data: parsedDataOrErrMsg,
     });
     const status = update(partitionedFilePath, parsedDataOrErrMsg);
     if (status === "ERROR") {
